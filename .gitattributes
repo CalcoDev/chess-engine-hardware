@@ -1,0 +1,39 @@
+# Default: normalize text files and store LF endings
+* text=auto eol=lf
+
+# HDL
+*.v      text eol=lf
+*.vh     text eol=lf
+*.sv     text eol=lf
+*.svh    text eol=lf
+
+# Build / project configuration
+*.f      text eol=lf
+*.tcl    text eol=lf
+*.sdc    text eol=lf
+*.xdc    text eol=lf
+*.cst    text eol=lf
+
+# Scripts / source
+*.py     text eol=lf
+*.sh     text eol=lf
+*.c      text eol=lf
+*.h      text eol=lf
+*.cpp    text eol=lf
+*.hpp    text eol=lf
+
+# Documentation / config
+*.md     text eol=lf
+*.txt    text eol=lf
+*.json   text eol=lf
+*.toml   text eol=lf
+*.yaml   text eol=lf
+*.yml    text eol=lf
+
+# Makefiles
+Makefile text eol=lf
+*.mk     text eol=lf
+
+# Waveform / binary simulation files, if one somehow gets committed
+*.fst binary
+*.wlf binary
