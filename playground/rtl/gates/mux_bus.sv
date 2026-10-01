@@ -8,7 +8,6 @@ module mux_bus #(
 );
 
     genvar i;
-
     generate
         for (i = 0; i < WIDTH; i++) begin : gen_mux
             mux2 m (
