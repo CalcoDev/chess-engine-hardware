@@ -27,7 +27,9 @@ module number_guesser_datapath #(
     assign high_extension = {1'b0, high};
 
     wire [WIDTH:0] midpoint_sum;
-    wire carry_unused;
+    wire midpoint_carry_unused;
+    wire increment_carry_unused;
+    wire decrement_carry_unused;
 
     assign guess = midpoint_sum[WIDTH:1];
 
@@ -45,7 +47,7 @@ module number_guesser_datapath #(
         .b        (high_extension),
         .carry_in ('0),
         .sum      (midpoint_sum),
-        .carry_out(carry_unused)
+        .carry_out(midpoint_carry_unused)
     );
 
 
@@ -57,7 +59,7 @@ module number_guesser_datapath #(
         .b        ('0),
         .carry_in (1'b1),
         .sum      (guess_plus_one),
-        .carry_out(carry_unused)
+        .carry_out(increment_carry_unused)
     );
 
     ripple_adder #(
@@ -67,7 +69,7 @@ module number_guesser_datapath #(
         .b        ('1),
         .carry_in (1'b0),
         .sum      (guess_minus_one),
-        .carry_out(carry_unused)
+        .carry_out(decrement_carry_unused)
     );
 
 
