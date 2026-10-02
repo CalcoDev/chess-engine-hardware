@@ -4,7 +4,7 @@ module reg_reset_n #(
     input wire clk,
     input wire reset,
     input wire [WIDTH-1:0] d,
-    input wire [WIDTH-1:0] q
+    output wire [WIDTH-1:0] q
 );
 
     wire [WIDTH-1:0] next_q;

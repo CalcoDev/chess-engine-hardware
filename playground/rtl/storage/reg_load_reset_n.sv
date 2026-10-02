@@ -19,7 +19,7 @@ module reg_load_reset_n #(
     input wire reset,
     input wire load,
     input wire [WIDTH-1:0] d,
-    input wire [WIDTH-1:0] q
+    output wire [WIDTH-1:0] q
 );
 
     wire [WIDTH-1:0] load_q;
