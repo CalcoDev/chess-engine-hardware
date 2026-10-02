@@ -1,11 +1,16 @@
 // NOTE(calco): Assuming this will be hooked to a tick_generator, not actual
 // base clock. If base clock ig multiply 1 stable tick by 27_000 or whatever
 // ur actual clock is lol
+//
+// NOTE(calco): CORRECTION!
+// This is NOT how this is supposed to work! We will keep normal clock and just
+// use tick signal specially for sync stuff. Clock domain crossing is ... bad.
 module debouncer #(
     parameter int unsigned STABLE_TICKS = 4
 ) (
     input wire clk,
     input wire reset,
+    input wire tick,
 
     input  wire noisy_in,
     output wire clean_out
@@ -28,9 +33,12 @@ module debouncer #(
 
     wire [TICK_COUNT_WIDTH-1:0] next_count_intermediary;
 
-
     wire clean_d_mux_select;
     wire not_not_input_changed;
+
+    // clock sync with tick
+    wire [TICK_COUNT_WIDTH-1:0] sampled_count_d;
+    wire sampled_clean_d;
 
     // Compute next clean_d
     // clean_d = (count_done AND NOT not_input_changed) ? noisy_in : clean_out
@@ -47,11 +55,11 @@ module debouncer #(
 
     mux_bus #(
         .WIDTH(1)
-    ) mux_bus (
+    ) clean_d_sample_mux (
         .a(clean_out),
         .b(noisy_in),
         .s(clean_d_mux_select),
-        .y(clean_d)
+        .y(sampled_clean_d)
     );
 
 
@@ -100,7 +108,26 @@ module debouncer #(
         .a(next_count_intermediary),
         .b('0),
         .s(not_input_changed),
+        .y(sampled_count_d)
+    );
+
+    // muxes to sync on tick only
+    mux_bus #(
+        .WIDTH(TICK_COUNT_WIDTH)
+    ) count_tick_mux (
+        .a(count_q),
+        .b(sampled_count_d),
+        .s(tick),
         .y(count_d)
+    );
+
+    mux_bus #(
+        .WIDTH(1)
+    ) clean_tick_mux (
+        .a(clean_out),
+        .b(sampled_clean_d),
+        .s(tick),
+        .y(clean_d)
     );
 
     // Storage stuff
