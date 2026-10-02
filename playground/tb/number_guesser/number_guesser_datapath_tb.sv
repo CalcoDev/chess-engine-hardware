@@ -1,5 +1,3 @@
-`timescale 1ns / 1ps
-
 module number_guesser_datapath_tb;
 
     localparam int unsigned WIDTH = 8;
@@ -30,6 +28,7 @@ module number_guesser_datapath_tb;
     );
 
 
+    // 10 ns clock period
     always #5 clk = ~clk;
 
 
@@ -39,8 +38,9 @@ module number_guesser_datapath_tb;
         #1;
 
         if (low !== expected_low || high !== expected_high || guess !== expected_guess) begin
-            $fatal(1, "%s FAILED: low=%0d high=%0d guess=%0d; expected %0d %0d %0d", name, low,
-                   high, guess, expected_low, expected_high, expected_guess);
+            $fatal(1,
+                   "%s FAILED: got low=%0d high=%0d guess=%0d; expected low=%0d high=%0d guess=%0d",
+                   name, low, high, guess, expected_low, expected_high, expected_guess);
         end
 
         $display("%s PASS: low=%0d high=%0d guess=%0d", name, low, high, guess);
@@ -51,99 +51,150 @@ module number_guesser_datapath_tb;
         $dumpfile("number_guesser_datapath.fst");
         $dumpvars(0, number_guesser_datapath_tb);
 
+
+        // -------------------------------------------------
+        // Initial control inputs
+        //
+        // The datapath registers themselves have no reset.
+        // INIT explicitly loads:
+        //
+        // low  = 0
+        // high = 255
+        // -------------------------------------------------
+
         init        = 1'b1;
         update_low  = 1'b0;
         update_high = 1'b0;
 
 
         // -------------------------------------------------
-        // INITIALISE
-        //
-        // First clock writes:
-        //
-        // low  = 0
-        // high = 255
+        // INIT
         // -------------------------------------------------
 
         @(posedge clk);
-
-        init = 1'b0;
 
         check_state(8'd0, 8'd255, 8'd127, "initialise");
 
+        @(negedge clk);
+        init = 1'b0;
+
 
         // -------------------------------------------------
-        // User said HIGHER to 127
+        // 127 -> HIGHER
         //
-        // low = 127 + 1 = 128
+        // low = 128
+        // high = 255
         //
-        // midpoint:
-        // (128 + 255) / 2 = 191
+        // guess = floor((128 + 255) / 2)
+        //       = 191
         // -------------------------------------------------
 
         update_low = 1'b1;
 
         @(posedge clk);
-
-        update_low = 1'b0;
 
         check_state(8'd128, 8'd255, 8'd191, "higher after 127");
 
+        @(negedge clk);
+        update_low  = 1'b0;
+
 
         // -------------------------------------------------
-        // User said LOWER to 191
+        // 191 -> LOWER
         //
-        // high = 191 - 1 = 190
+        // low = 128
+        // high = 190
         //
-        // guess = (128 + 190) / 2 = 159
+        // guess = 159
         // -------------------------------------------------
 
         update_high = 1'b1;
 
         @(posedge clk);
-
-        update_high = 1'b0;
 
         check_state(8'd128, 8'd190, 8'd159, "lower after 191");
 
+        @(negedge clk);
+        update_high = 1'b0;
+
 
         // -------------------------------------------------
-        // Higher than 159
+        // 159 -> HIGHER
+        //
+        // low = 160
+        // high = 190
+        //
+        // guess = 175
         // -------------------------------------------------
 
-        update_low = 1'b1;
+        update_low  = 1'b1;
 
         @(posedge clk);
 
-        update_low = 1'b0;
-
         check_state(8'd160, 8'd190, 8'd175, "higher after 159");
+
+        @(negedge clk);
+        update_low  = 1'b0;
 
 
         // -------------------------------------------------
-        // Lower than 175
+        // 175 -> LOWER
+        //
+        // low = 160
+        // high = 174
+        //
+        // guess = 167
         // -------------------------------------------------
 
         update_high = 1'b1;
 
         @(posedge clk);
 
-        update_high = 1'b0;
-
         check_state(8'd160, 8'd174, 8'd167, "lower after 175");
+
+        @(negedge clk);
+        update_high = 1'b0;
 
 
         // -------------------------------------------------
-        // Neither update asserted:
-        // registers must retain their values.
+        // HOLD
+        //
+        // Neither load signal is asserted.
+        // Both registers must retain their values.
         // -------------------------------------------------
 
         @(posedge clk);
 
-        check_state(8'd160, 8'd174, 8'd167, "register hold");
+        check_state(8'd160, 8'd174, 8'd167, "hold");
 
 
-        $display("DATAPATH TESTS PASSED");
+        // -------------------------------------------------
+        // INIT should restore the original range
+        //
+        // Also assert update signals here deliberately:
+        // INIT should select the initial values regardless.
+        // -------------------------------------------------
+
+        @(negedge clk);
+
+        init        = 1'b1;
+        update_low  = 1'b1;
+        update_high = 1'b1;
+
+        @(posedge clk);
+
+        check_state(8'd0, 8'd255, 8'd127, "reinitialise");
+
+
+        @(negedge clk);
+
+        init        = 1'b0;
+        update_low  = 1'b0;
+        update_high = 1'b0;
+
+
+        $display("");
+        $display("ALL DATAPATH TESTS PASSED");
         $finish;
     end
 
