@@ -1,0 +1,7 @@
+[project]
+name = "python"
+version = "0.1.0"
+description = "Random place where I'll put stuff related to the thing."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
