@@ -27,21 +27,21 @@ int main() {
         bool output = backend->invert(input);
 
         BeginDrawing();
-			ClearBackground(BLACK);
-			DrawText(
-				TextFormat("input:  %d", input),
-				40,
-				120,
-				32,
-				RAYWHITE
-			);
-			DrawText(
-				TextFormat("output: %d", output),
-				40,
-				170,
-				32,
-				RAYWHITE
-			);
+	    ClearBackground(BLACK);
+	    DrawText(
+		TextFormat("input:  %d", input),
+		40,
+		120,
+		32,
+		RAYWHITE
+	    );
+	    DrawText(
+		TextFormat("output: %d", output),
+		40,
+		170,
+		32,
+		RAYWHITE
+	    );
         EndDrawing();
     }
 

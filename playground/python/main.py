@@ -28,7 +28,7 @@ def number_guesser_game():
 
 def main():
     print("Hello from python!")
-    number_guesser_game()
+    # number_guesser_game()
 
 
 if __name__ == "__main__":
